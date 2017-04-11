@@ -1,10 +1,10 @@
-%global commit0 28de40bfcd84e7df3fbd64de7b89dd7fd889bb27
-%global date 20161216
+%global commit0 ee07b323a4d44cee6a068c93e49b75d7bcd28785
+%global date 20170324
 %global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
 
 Name:       daala
 Version:    0
-Release:    4%{?shortcommit0:.%{date}git%{shortcommit0}}%{?dist}
+Release:    5%{?shortcommit0:.%{date}git%{shortcommit0}}%{?dist}
 Summary:    Daala video compression
 License:    BSD
 URL:        http://xiph.org/daala/
@@ -61,9 +61,11 @@ testing %{name} support in your applications.
 %build
 autoreconf -vif
 %configure \
+    --disable-silent-rules \
     --disable-static \
     --enable-analyzer \
-    --enable-float-pvq
+    --enable-float-pvq \
+    --enable-tools
 
 %make_build
 %make_build tools
@@ -75,35 +77,35 @@ find %{buildroot} -name "*.la" -delete
 # Install tools (list from tools_TARGETS in Makefile.am)
 mkdir -p %{buildroot}%{_bindir}
 install -m 755 -p \
-    tools/png2y4m \
-    tools/y4m2png \
-    tools/dump_psnrhvs \
+    tools/bjontegaard \
     tools/block_size_analysis \
-    tools/to_monochrome \
-    tools/downsample \
-    tools/upsample \
-    tools/divu_const \
-    tools/trans \
-    tools/trans2d \
-    tools/trans_gain \
-    tools/gen_cdf \
-    tools/gen_sqrt_tbl \
     tools/compute_basis \
     tools/compute_haar_basis \
     tools/cos_search \
-    tools/gen_laplace_tables \
-    tools/daalainfo \
-    tools/dump_ssim \
-    tools/dump_fastssim \
-    tools/bjontegaard \
-    tools/yuvjpeg \
-    tools/jpegyuv \
-    tools/yuv2yuv4mpeg \
-    tools/dump_psnr \
-    tools/vq_train \
+    tools/divu_const \
+    tools/downsample \
     tools/draw_zigzags \
+    tools/dump_fastssim \
     tools/dump_msssim \
+    tools/dump_psnr \
+    tools/dump_psnrhvs \
+    tools/dump_ssim \
+    tools/gen_cdf \
+    tools/gen_laplace_tables \
+    tools/gen_sqrt_tbl \
+    tools/jpegyuv \
+    tools/.libs/daalainfo \
+    tools/png2y4m \
+    tools/to_monochrome \
+    tools/trans \
+    tools/trans2d \
+    tools/trans_gain \
+    tools/upsample \
+    tools/vq_train \
+    tools/y4m2png \
     tools/y4m2yuv \
+    tools/yuv2yuv4mpeg \
+    tools/yuvjpeg \
     %{buildroot}%{_bindir}/
 
 # Let rpm pick up the docs in the files section
@@ -113,6 +115,10 @@ rm -fr %{buildroot}/%{_docdir}
 mkdir -p %{buildroot}/%{_mandir}
 cp -fr doc/man/man3/ %{buildroot}/%{_mandir}
 rm -f %{buildroot}/%{_mandir}/man3/_*_include_daala_.3
+
+%check
+# Tests are incredibly long, disable for now
+#make V=0 check
 
 %post libs -p /sbin/ldconfig
 
@@ -134,6 +140,12 @@ rm -f %{buildroot}/%{_mandir}/man3/_*_include_daala_.3
 %{_bindir}/*
 
 %changelog
+* Thu Mar 30 2017 Simone Caronni <negativo17@gmail.com> - 0-5.20170324gitee07b32
+- Update to latest snapshot.
+- Make build verbose.
+- Add tests, disable them for now as they are incredibly long (30 minutes).
+- Fix daalainfo.
+
 * Fri Feb 10 2017 Fedora Release Engineering <releng@fedoraproject.org> - 0-4.20161216git28de40b
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
 
